@@ -1,0 +1,72 @@
+/* Transisi dan animasi yang lebih halus */
+.note {
+  /* Menambahkan transisi halus untuk semua properti selama 0,3 detik
+       dengan kurva percepatan cubic-bezier untuk membuat efek animasi yang lebih dinamis */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.note:hover {
+  /* Saat elemen dengan kelas .note di-hover, akan sedikit naik ke atas
+       dan menampilkan bayangan untuk memberikan efek depth */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.color-picker button {
+  /* Menambahkan transisi halus pada tombol di dalam .color-picker
+       selama 0,2 detik untuk memberikan animasi pada skala tombol */
+  transition: transform 0.2s ease;
+}
+.color-picker button:hover {
+  /* Saat tombol di-hover, ukurannya akan membesar sebesar 10% */
+  transform: scale(1.1);
+}
+
+/* Optimasi tampilan di perangkat seluler */
+@media (max-width: 640px) {
+  .container {
+    /* Memberikan padding kiri dan kanan sebesar 1rem di layar kecil */
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  #note-input {
+    /* Memberikan margin bawah sebesar 1rem untuk memberi ruang antara input catatan dan elemen lainnya */
+    margin-bottom: 1rem;
+  }
+
+  .tools-section {
+    /* Memungkinkan elemen di .tools-section untuk membungkus ke baris berikutnya
+         dan menambahkan jarak antar elemen sebesar 0,5rem */
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  #color-palette {
+    /* Mengatur kolom pada grid .color-palette menjadi 5 kolom pada layar kecil */
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Kustomisasi tampilan scrollbar */
+::-webkit-scrollbar {
+  /* Menentukan lebar scrollbar menjadi 8px */
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  /* Memberikan warna latar belakang pada track scrollbar */
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  /* Mengatur warna, bentuk, dan radius pada bagian yang dapat digeser dari scrollbar */
+  background: #a5a5a5;
+  border-radius: 4px;
+}
+
+/* Input yang lebih ramah sentuhan untuk perangkat layar sentuh */
+input,
+textarea,
+button {
+  /* Menghilangkan efek highlight biru pada input, textarea, dan tombol saat di-tap */
+  -webkit-tap-highlight-color: transparent;
+}

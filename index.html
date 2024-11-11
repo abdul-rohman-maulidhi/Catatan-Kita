@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#A855F7" />
+    <title>Catatan Kita</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- CSS  -->
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-4 sm:py-8 max-w-7xl">
+      <!-- Header Section -->
+      <header class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-4">
+        <div class="flex items-center group w-full sm:w-auto justify-center sm:justify-start">
+          <img src="./assets/img/logocakit.png" alt="Catatan Kita Logo" class="w-8 h-8 sm:w-10 sm:h-10 transition-transform transform group-hover:scale-105" />
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 ml-3 sm:ml-5 transition-transform transform group-hover:scale-105">Catatan Kita</h1>
+        </div>
+
+        <!-- Toggle view and search bar  -->
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
+          <button onclick="NotesUI.toggleView()" class="text-gray-600 hover:text-gray-800 hidden sm:inline">
+            <i id="view-toggle" class="fas fa-th"></i>
+          </button>
+          <div class="relative flex-grow sm:flex-grow-0">
+            <div class="absolute pointer-events-auto">
+              <svg class="absolute text-slate-400 h-5 w-5 mt-3 ml-3" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input type="text" id="search-input" class="w-full sm:w-64 px-4 py-2 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Search notes..." />
+          </div>
+        </div>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="flex flex-wrap gap-2 mb-4">
+        <div class="group">
+          <button
+            onclick="NotesUI.currentView = 'notes'; notesManager.updateView()"
+            class="px-3 sm:px-4 py-2 rounded-lg bg-purple-500 text-white transition-transform transform group-hover:scale-105 transition-all hover:bg-purple-800 text-sm sm:text-base"
+          >
+            Notes
+          </button>
+        </div>
+        <div class="group">
+          <button
+            onclick="NotesUI.currentView = 'reminder'; notesManager.updateView()"
+            class="px-3 sm:px-4 py-2 rounded-lg bg-purple-500 text-white transition-transform transform group-hover:scale-105 transition-all hover:bg-purple-800 text-sm sm:text-base"
+          >
+            Reminder
+          </button>
+        </div>
+        <div class="group">
+          <button
+            onclick="NotesUI.currentView = 'archive'; notesManager.updateView()"
+            class="px-3 sm:px-4 py-2 rounded-lg bg-purple-500 text-white transition-transform transform group-hover:scale-105 transition-all hover:bg-purple-800 text-sm sm:text-base"
+          >
+            Archive
+          </button>
+        </div>
+        <div class="group">
+          <button
+            onclick="NotesUI.currentView = 'trash'; notesManager.updateView()"
+            class="px-3 sm:px-4 py-2 rounded-lg bg-purple-500 text-white transition-transform transform group-hover:scale-105 transition-all hover:bg-purple-800 text-sm sm:text-base"
+          >
+            Trash
+          </button>
+        </div>
+        <div class="group">
+          <button
+            onclick="NotesUI.currentView = 'tags'; notesManager.renderTags()"
+            class="px-3 sm:px-4 py-2 rounded-lg bg-purple-500 text-white transition-transform transform group-hover:scale-105 transition-all hover:bg-purple-800 text-sm sm:text-base"
+          >
+            Tags
+          </button>
+        </div>
+      </nav>
+
+      <!-- Current Date, Time -->
+      <div class="flex flex-wrap justify-end gap-2 mb-4">
+        <div class="flex items-center space-x-2 rounded-lg py-2 px-3 text-gray-500 text-sm bg-white shadow-sm sm:text-base">
+          <i class="fas fa-calendar-alt"></i>
+          <span id="current-date" class="sm:inline"></span>
+        </div>
+        <div class="flex items-center space-x-2 rounded-lg py-2 px-3 text-gray-500 text-sm bg-white shadow-sm sm:text-base">
+          <i class="fas fa-clock"></i>
+          <span id="current-time"></span>
+        </div>
+      </div>
+
+      <!-- Tag Filter -->
+      <div id="tag-filter-indicator" class="hidden mb-4 px-4 py-2 bg-purple-100 rounded-lg flex justify-between items-center">
+        <span class="text-purple-700 text-sm sm:text-base">Showing notes tagged with: <span id="current-tag" class="font-medium"></span></span>
+        <button onclick="notesManager.clearTagFilter()" class="text-purple-700 hover:text-purple-900">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Note Input Section -->
+      <div id="note-input" class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+        <input type="text" id="note-title" class="w-full mb-4 p-3 rounded-lg text-lg sm:text-xl font-medium border-none focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Judul catatan" />
+        <textarea
+          id="note-content"
+          class="w-full mb-4 p-3 rounded-lg resize-none border-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+          rows="3"
+          placeholder="Tulis catatan anda disini..."
+          oninput="autoResize(this)"
+          style="resize: vertical"
+        ></textarea>
+
+        <!-- Tags Section -->
+        <div class="note-tags flex flex-wrap gap-1 mt-2">
+          <!-- Tags will be dynamically inserted here -->
+        </div>
+
+        <!-- Tools Section -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
+          <div class="flex flex-wrap gap-4 tools-section">
+            <!-- Color Picker -->
+            <div class="relative">
+              <button onclick="NotesUI.toggleColorPalette()" class="text-gray-600 hover:text-gray-800 p-2">
+                <i class="fas fa-palette"></i>
+              </button>
+              <div id="color-palette" class="hidden absolute flex flex-grow gap-2 z-10 left-0 bg-purple-500 p-3 rounded-lg shadow-lg"></div>
+            </div>
+
+            <!-- Checklist section -->
+            <button onclick="notesManager.toggleChecklist()" class="text-gray-600 hover:text-gray-800 p-2">
+              <i class="fas fa-tasks"></i>
+            </button>
+
+            <!-- Reminder section -->
+            <div class="relative">
+              <button onclick="NotesUI.toggleReminder()" class="text-gray-600 hover:text-gray-800 p-2">
+                <i class="fas fa-bell"></i>
+              </button>
+              <div id="reminder-options" class="hidden absolute top-12 left-0 bg-white p-3 rounded-lg shadow-lg z-10">
+                <input type="datetime-local" id="reminder-datetime" class="p-2 border border-gray-300 rounded w-full" />
+              </div>
+            </div>
+
+            <!-- Tags section -->
+            <div class="relative">
+              <button onclick="NotesUI.toggleTags()" class="text-gray-600 hover:text-gray-800 p-2">
+                <i class="fas fa-tags"></i>
+              </button>
+              <div id="tag-options" class="hidden absolute top-12 left-0 bg-white p-4 rounded-lg shadow-lg min-w-[200px] z-10">
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input type="text" id="tag-input" class="p-2 border border-gray-300 rounded flex-1" placeholder="Buat tag baru" onkeypress="if(event.key === 'Enter') { notesManager.addTagToCurrentNote(this.value); this.value = ''; }" />
+                  <button
+                    onclick="const tagValue = document.getElementById('tag-input').value; notesManager.addTagToCurrentNote(tagValue); document.getElementById('tag-input').value = '';"
+                    class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-900 whitespace-nowrap"
+                  >
+                    Add Tag
+                  </button>
+                </div>
+                <div class="mt-2 text-sm text-gray-500">Click a tag to add to note</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Button add note  -->
+          <button onclick="notesManager.addNote()" class="w-full sm:w-auto px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-900 transition-colors">Add Note</button>
+        </div>
+      </div>
+
+      <!-- Notes Container -->
+      <div id="notes-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Hasil Note -->
+      </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-200 text-center py-4 mt-8">
+      <p class="text-gray-600 text-sm sm:text-base px-4">
+        &copy; 2024 | Made with <i class="fas fa-heart text-purple-500"></i> by
+        <span class="flex flex-wrap justify-center gap-1">
+          <a class="hover:text-purple-700 hover:font-bold" href="https://www.instagram.com/xlv.st/">Alfy</a>, <a class="hover:text-purple-700 hover:font-bold" href="https://www.instagram.com/didikmiko.id/">Didik</a>,
+          <a class="hover:text-purple-700 hover:font-bold" href="https://www.instagram.com/fvrxdy_/">Ferdi</a>,
+          <a class="hover:text-purple-700 hover:font-bold" href="https://www.instagram.com/abdul.rohmanm/">Rohman</a>
+        </span>
+      </p>
+    </footer>
+
+    <!-- OOP JS  -->
+    <script src="./renderer.js"></script>
+
+    <!-- fungsi auto resize dan date time  -->
+    <script>
+      // Auto resize text area
+      function autoResize(textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = textarea.scrollHeight + "px";
+      }
+
+      // Update current date and time every second
+      function updateDateTime() {
+        const currentDate = new Date();
+        const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+        document.getElementById("current-date").textContent = currentDate.toLocaleDateString("id-ID", options);
+        document.getElementById("current-time").textContent = currentDate.toLocaleTimeString("id-ID");
+      }
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+
+      // Handle mobile viewport height issues
+      function setViewportHeight() {
+        document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+      }
+      setViewportHeight();
+      window.addEventListener("resize", setViewportHeight);
+    </script>
+  </body>
+</html>

@@ -1,2 +1,2 @@
 # Catatan-Kita
-Aplikasi catatan berbasis dekstop menggunakan teknologi electron dan OOP Javascript
+Aplikasi catatan berbasis dekstop menggunakan Frame-work Electron dan peneparan OOP Javascript
